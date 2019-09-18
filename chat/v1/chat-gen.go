@@ -1259,6 +1259,11 @@ type User struct {
 	//   "BOT" - Bot user.
 	Type string `json:"type,omitempty"`
 
+	// Email: The user's email address.
+	Email string `json:"email,omitempty"`
+
+	AvatarURL string `json:"avatarUrl,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "DisplayName") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
