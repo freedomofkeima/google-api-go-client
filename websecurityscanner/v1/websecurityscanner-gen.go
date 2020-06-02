@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,7 +6,7 @@
 
 // Package websecurityscanner provides access to the Web Security Scanner API.
 //
-// For product documentation, see: https://cloud.google.com/security-scanner/
+// For product documentation, see: https://cloud.google.com/security-command-center/docs/concepts-web-security-scanner-overview/
 //
 // Creating a client
 //
@@ -52,6 +52,7 @@ import (
 	googleapi "google.golang.org/api/googleapi"
 	gensupport "google.golang.org/api/internal/gensupport"
 	option "google.golang.org/api/option"
+	internaloption "google.golang.org/api/option/internaloption"
 	htransport "google.golang.org/api/transport/http"
 )
 
@@ -68,6 +69,7 @@ var _ = googleapi.Version
 var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
+var _ = internaloption.WithDefaultEndpoint
 
 const apiId = "websecurityscanner:v1"
 const apiName = "websecurityscanner"
@@ -87,6 +89,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, err
 	)
 	// NOTE: prepend, so we don't override user-specified scopes.
 	opts = append([]option.ClientOption{scopesOption}, opts...)
+	opts = append(opts, internaloption.WithDefaultEndpoint(basePath))
 	client, endpoint, err := htransport.NewClient(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -206,6 +209,9 @@ type Authentication struct {
 
 	// GoogleAccount: Authentication using a Google account.
 	GoogleAccount *GoogleAccount `json:"googleAccount,omitempty"`
+
+	// IapCredential: Authentication using Identity-Aware-Proxy (IAP).
+	IapCredential *IapCredential `json:"iapCredential,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "CustomAccount") to
 	// unconditionally include in API requests. By default, fields with
@@ -344,8 +350,8 @@ type Finding struct {
 	// FindingType: Output only. The type of the Finding.
 	// Detailed and up-to-date information on findings can be found
 	// here:
-	// https://cloud.google.com/security-scanner/docs/scan-result-detai
-	// ls
+	// https://cloud.google.com/security-command-center/docs/how-to-rem
+	// ediate-web-security-scanner-findings
 	FindingType string `json:"findingType,omitempty"`
 
 	// Form: Output only. An addon containing information reported for a
@@ -384,6 +390,17 @@ type Finding struct {
 	// payload that user can leverage to
 	// reproduce the vulnerability.
 	ReproductionUrl string `json:"reproductionUrl,omitempty"`
+
+	// Severity: Output only. The severity level of the reported
+	// vulnerability.
+	//
+	// Possible values:
+	//   "SEVERITY_UNSPECIFIED" - No severity specified. The default value.
+	//   "CRITICAL" - Critical severity.
+	//   "HIGH" - High severity.
+	//   "MEDIUM" - Medium severity.
+	//   "LOW" - Low severity.
+	Severity string `json:"severity,omitempty"`
 
 	// TrackingId: Output only. The tracking ID uniquely identifies a
 	// vulnerability instance across
@@ -561,6 +578,74 @@ type Header struct {
 
 func (s *Header) MarshalJSON() ([]byte, error) {
 	type NoMethod Header
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// IapCredential: Describes authentication configuration for
+// Identity-Aware-Proxy (IAP).
+type IapCredential struct {
+	// IapTestServiceAccountInfo: Authentication configuration when
+	// Web-Security-Scanner service
+	// account is added in Identity-Aware-Proxy (IAP) access policies.
+	IapTestServiceAccountInfo *IapTestServiceAccountInfo `json:"iapTestServiceAccountInfo,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "IapTestServiceAccountInfo") to unconditionally include in API
+	// requests. By default, fields with empty values are omitted from API
+	// requests. However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g.
+	// "IapTestServiceAccountInfo") to include in API requests with the JSON
+	// null value. By default, fields with empty values are omitted from API
+	// requests. However, any field with an empty value appearing in
+	// NullFields will be sent to the server as null. It is an error if a
+	// field in this list has a non-empty value. This may be used to include
+	// null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *IapCredential) MarshalJSON() ([]byte, error) {
+	type NoMethod IapCredential
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// IapTestServiceAccountInfo: Describes authentication configuration
+// when Web-Security-Scanner
+// service account is added in Identity-Aware-Proxy (IAP) access
+// policies.
+type IapTestServiceAccountInfo struct {
+	// TargetAudienceClientId: Required. Describes OAuth2 client id of
+	// resources protected by
+	// Identity-Aware-Proxy (IAP).
+	TargetAudienceClientId string `json:"targetAudienceClientId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g.
+	// "TargetAudienceClientId") to unconditionally include in API requests.
+	// By default, fields with empty values are omitted from API requests.
+	// However, any non-pointer, non-interface field appearing in
+	// ForceSendFields will be sent to the server regardless of whether the
+	// field is empty or not. This may be used to include empty fields in
+	// Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "TargetAudienceClientId")
+	// to include in API requests with the JSON null value. By default,
+	// fields with empty values are omitted from API requests. However, any
+	// field with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *IapTestServiceAccountInfo) MarshalJSON() ([]byte, error) {
+	type NoMethod IapTestServiceAccountInfo
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -790,9 +875,10 @@ type ScanConfig struct {
 	// authentication configuration during scanning.
 	Authentication *Authentication `json:"authentication,omitempty"`
 
-	// BlacklistPatterns: The blacklist URL patterns as described
+	// BlacklistPatterns: The excluded URL patterns as described
 	// in
-	// https://cloud.google.com/security-scanner/docs/excluded-urls
+	// https://cloud.google.com/security-command-center/docs/how-to-use-we
+	// b-security-scanner#excluding_urls
 	BlacklistPatterns []string `json:"blacklistPatterns,omitempty"`
 
 	// DisplayName: Required. The user provided display name of the
@@ -800,17 +886,21 @@ type ScanConfig struct {
 	DisplayName string `json:"displayName,omitempty"`
 
 	// ExportToSecurityCommandCenter: Controls export of scan configurations
-	// and results to Cloud Security
+	// and results to Security
 	// Command Center.
 	//
 	// Possible values:
 	//   "EXPORT_TO_SECURITY_COMMAND_CENTER_UNSPECIFIED" - Use default,
 	// which is ENABLED.
-	//   "ENABLED" - Export results of this scan to Cloud Security Command
+	//   "ENABLED" - Export results of this scan to Security Command Center.
+	//   "DISABLED" - Do not export results of this scan to Security Command
 	// Center.
-	//   "DISABLED" - Do not export results of this scan to Cloud Security
-	// Command Center.
 	ExportToSecurityCommandCenter string `json:"exportToSecurityCommandCenter,omitempty"`
+
+	// ManagedScan: Whether the scan config is managed by Web Security
+	// Scanner, output
+	// only.
+	ManagedScan bool `json:"managedScan,omitempty"`
 
 	// MaxQps: The maximum QPS during scanning. A valid value ranges from 5
 	// to 20
@@ -842,6 +932,12 @@ type ScanConfig struct {
 	// StartingUrls: Required. The starting URLs from which the scanner
 	// finds site pages.
 	StartingUrls []string `json:"startingUrls,omitempty"`
+
+	// StaticIpScan: Whether the scan configuration has enabled static IP
+	// address scan feature.
+	// If enabled, the scanner will access applications from static IP
+	// addresses.
+	StaticIpScan bool `json:"staticIpScan,omitempty"`
 
 	// UserAgent: The user agent used during scanning.
 	//
@@ -942,6 +1038,8 @@ type ScanConfigError struct {
 	//   "FORBIDDEN_TO_SCAN_COMPUTE" - Scan targets Compute Engine, yet
 	// current project was not whitelisted for
 	// Google Compute Engine Scanning Alpha access.
+	//   "FORBIDDEN_UPDATE_TO_MANAGED_SCAN" - User tries to update managed
+	// scan
 	//   "MALFORMED_FILTER" - The supplied filter is malformed. For example,
 	// it can not be parsed, does
 	// not have a filter type in expression, or the same filter type
@@ -972,8 +1070,8 @@ type ScanConfigError struct {
 	//   "SEED_URL_HAS_UNRESERVED_IP_ADDRESS" - One of the seed URLs has an
 	// IP address that is not reserved
 	// for the current project.
-	//   "SERVICE_ACCOUNT_NOT_CONFIGURED" - The Cloud Security Scanner
-	// service account is not configured under the
+	//   "SERVICE_ACCOUNT_NOT_CONFIGURED" - The Web Security Scanner service
+	// account is not configured under the
 	// project.
 	//   "TOO_MANY_SCANS" - A project has reached the maximum number of
 	// scans.
@@ -1495,7 +1593,7 @@ func (c *ProjectsScanConfigsCreateCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsCreateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1633,7 +1731,7 @@ func (c *ProjectsScanConfigsDeleteCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1774,7 +1872,7 @@ func (c *ProjectsScanConfigsGetCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1938,7 +2036,7 @@ func (c *ProjectsScanConfigsListCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2117,7 +2215,7 @@ func (c *ProjectsScanConfigsPatchCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2263,7 +2361,7 @@ func (c *ProjectsScanConfigsStartCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsStartCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2412,7 +2510,7 @@ func (c *ProjectsScanConfigsScanRunsGetCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2578,7 +2676,7 @@ func (c *ProjectsScanConfigsScanRunsListCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2745,7 +2843,7 @@ func (c *ProjectsScanConfigsScanRunsStopCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsStopCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2914,7 +3012,7 @@ func (c *ProjectsScanConfigsScanRunsCrawledUrlsListCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsCrawledUrlsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3090,7 +3188,7 @@ func (c *ProjectsScanConfigsScanRunsFindingTypeStatsListCall) Header() http.Head
 
 func (c *ProjectsScanConfigsScanRunsFindingTypeStatsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3234,7 +3332,7 @@ func (c *ProjectsScanConfigsScanRunsFindingsGetCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsFindingsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3408,7 +3506,7 @@ func (c *ProjectsScanConfigsScanRunsFindingsListCall) Header() http.Header {
 
 func (c *ProjectsScanConfigsScanRunsFindingsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}

@@ -5,6 +5,9 @@
         "https://www.googleapis.com/auth/youtube": {
           "description": "Manage your YouTube account"
         },
+        "https://www.googleapis.com/auth/youtube.channel-memberships.creator": {
+          "description": "See a list of your current active channel members, their current level, and when they became a member"
+        },
         "https://www.googleapis.com/auth/youtube.force-ssl": {
           "description": "See, edit, and permanently delete your YouTube videos, ratings, comments and captions"
         },
@@ -30,7 +33,7 @@
   "description": "Supports core YouTube features, such as uploading videos, creating and managing playlists, searching for content, and much more.",
   "discoveryVersion": "v1",
   "documentationLink": "https://developers.google.com/youtube/v3",
-  "etag": "\"9eZ1uxVRThTDhLJCZHhqs3eQWz4/yXw94x0FfH9hsuVdo84XOMLmCno\"",
+  "etag": "\"u9GIe6H63LSGq-9_t39K2Zx_EAc/zv9MXhKSAralGPvR6hrdaidciQk\"",
   "icons": {
     "x16": "https://www.google.com/images/icons/product/youtube-16.png",
     "x32": "https://www.google.com/images/icons/product/youtube-32.png"
@@ -89,33 +92,6 @@
   "resources": {
     "activities": {
       "methods": {
-        "insert": {
-          "description": "Posts a bulletin for a specific channel. (The user submitting the request must be authorized to act on the channel's behalf.)\n\nNote: Even though an activity resource can contain information about actions like a user rating a video or marking a video as a favorite, you need to use other API methods to generate those activity resources. For example, you would use the API's videos.rate() method to rate a video and the playlistItems.insert() method to mark a video as a favorite.",
-          "httpMethod": "POST",
-          "id": "youtube.activities.insert",
-          "parameterOrder": [
-            "part"
-          ],
-          "parameters": {
-            "part": {
-              "description": "The part parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include.",
-              "location": "query",
-              "required": true,
-              "type": "string"
-            }
-          },
-          "path": "activities",
-          "request": {
-            "$ref": "Activity"
-          },
-          "response": {
-            "$ref": "Activity"
-          },
-          "scopes": [
-            "https://www.googleapis.com/auth/youtube",
-            "https://www.googleapis.com/auth/youtube.force-ssl"
-          ]
-        },
         "list": {
           "description": "Returns a list of channel activity events that match the request criteria. For example, you can retrieve events associated with a particular channel, events associated with the user's subscriptions and Google+ friends, or the YouTube home page feed, which is customized for each user.",
           "httpMethod": "GET",
@@ -832,7 +808,7 @@
               "type": "integer"
             },
             "moderationStatus": {
-              "default": "MODERATION_STATUS_PUBLISHED",
+              "default": "published",
               "description": "Set this parameter to limit the returned comment threads to a particular moderation state.\n\nNote: This parameter is not supported for use in conjunction with the id parameter.",
               "enum": [
                 "heldForReview",
@@ -848,7 +824,7 @@
               "type": "string"
             },
             "order": {
-              "default": "true",
+              "default": "time",
               "description": "The order parameter specifies the order in which the API response should list comment threads. Valid values are: \n- time - Comment threads are ordered by time. This is the default behavior.\n- relevance - Comment threads are ordered by relevance.Note: This parameter is not supported for use in conjunction with the id parameter.",
               "enum": [
                 "relevance",
@@ -878,7 +854,7 @@
               "type": "string"
             },
             "textFormat": {
-              "default": "FORMAT_HTML",
+              "default": "html",
               "description": "Set this parameter's value to html or plainText to instruct the API to return the comments left by users in html formatted or in plain text.",
               "enum": [
                 "html",
@@ -1020,7 +996,7 @@
               "type": "string"
             },
             "textFormat": {
-              "default": "FORMAT_HTML",
+              "default": "html",
               "description": "This parameter indicates whether the API should return comments formatted as HTML or as plain text.",
               "enum": [
                 "html",
@@ -1451,7 +1427,7 @@
               "type": "string"
             },
             "broadcastType": {
-              "default": "BROADCAST_TYPE_FILTER_EVENT",
+              "default": "event",
               "description": "The broadcastType parameter filters the API response to only include broadcasts with the specified type. This is only compatible with the mine filter for now.",
               "enum": [
                 "all",
@@ -2053,6 +2029,11 @@
             "part"
           ],
           "parameters": {
+            "filterByMemberChannelId": {
+              "description": "The filterByMemberChannelId parameter represents a comma separated list of channel IDs. Only data about members that are part of this list will be included in the response. It can be used to efficiently check whether specific users are entitled to perks offered via third parties.",
+              "location": "query",
+              "type": "string"
+            },
             "hasAccessToLevel": {
               "description": "The hasAccessToLevel parameter specifies, when set, the ID of a pricing level that members from the results set should have access to. When not set, all members will be considered, regardless of their active pricing level.",
               "location": "query",
@@ -2063,12 +2044,12 @@
               "description": "The maxResults parameter specifies the maximum number of items that should be returned in the result set.",
               "format": "uint32",
               "location": "query",
-              "maximum": "50",
+              "maximum": "1000",
               "minimum": "0",
               "type": "integer"
             },
             "mode": {
-              "default": "LIST_MEMBERS_MODE_ALL_CURRENT",
+              "default": "all_current",
               "description": "The mode parameter specifies which channel members to return.",
               "enum": [
                 "all_current",
@@ -2087,7 +2068,7 @@
               "type": "string"
             },
             "part": {
-              "description": "The part parameter specifies the member resource parts that the API response will include. Supported values are id and snippet.",
+              "description": "The part parameter specifies the member resource parts that the API response will include. Set the parameter value to snippet.",
               "location": "query",
               "required": true,
               "type": "string"
@@ -2099,6 +2080,7 @@
           },
           "scopes": [
             "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
             "https://www.googleapis.com/auth/youtube.force-ssl",
             "https://www.googleapis.com/auth/youtube.readonly",
             "https://www.googleapis.com/auth/youtubepartner"
@@ -2129,6 +2111,7 @@
           },
           "scopes": [
             "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
             "https://www.googleapis.com/auth/youtube.force-ssl",
             "https://www.googleapis.com/auth/youtube.readonly",
             "https://www.googleapis.com/auth/youtubepartner"
@@ -2549,7 +2532,7 @@
               "type": "string"
             },
             "order": {
-              "default": "SEARCH_SORT_RELEVANCE",
+              "default": "relevance",
               "description": "The order parameter specifies the method that will be used to order resources in the API response.",
               "enum": [
                 "date",
@@ -2614,6 +2597,7 @@
               "type": "string"
             },
             "safeSearch": {
+              "default": "moderate",
               "description": "The safeSearch parameter indicates whether the search results should include restricted content as well as standard content.",
               "enum": [
                 "moderate",
@@ -2787,7 +2771,7 @@
           ],
           "parameters": {
             "filter": {
-              "default": "POLL_NEWEST",
+              "default": "newest",
               "description": "The filter parameter specifies which channel sponsors to return.",
               "enum": [
                 "all",
@@ -2943,7 +2927,7 @@
               "type": "string"
             },
             "order": {
-              "default": "SUBSCRIPTION_ORDER_RELEVANCE",
+              "default": "relevance",
               "description": "The order parameter specifies the method that will be used to sort resources in the API response.",
               "enum": [
                 "alphabetical",
@@ -3028,6 +3012,132 @@
             "https://www.googleapis.com/auth/youtube.force-ssl",
             "https://www.googleapis.com/auth/youtube.readonly"
           ]
+        }
+      }
+    },
+    "thirdPartyLink": {
+      "methods": {
+        "delete": {
+          "description": "Deletes a third-party account link.",
+          "httpMethod": "DELETE",
+          "id": "youtube.thirdPartyLink.delete",
+          "parameterOrder": [
+            "linkingToken",
+            "type"
+          ],
+          "parameters": {
+            "linkingToken": {
+              "description": "The linkingToken parameter specifies the linking token for the link that is being deleted.",
+              "location": "query",
+              "required": true,
+              "type": "string"
+            },
+            "type": {
+              "description": "The type parameter specifies the third-party account link type for which all matching resources should be retrieved.",
+              "enum": [
+                "channelToStoreLink"
+              ],
+              "enumDescriptions": [
+                "Link from a YouTube channel to a merchandise store."
+              ],
+              "location": "query",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "thirdPartyLinks"
+        },
+        "insert": {
+          "description": "Creates a third-party account link.",
+          "httpMethod": "POST",
+          "id": "youtube.thirdPartyLink.insert",
+          "parameterOrder": [
+            "part"
+          ],
+          "parameters": {
+            "debugProjectIdOverride": {
+              "description": "The debugProjectIdOverride parameter should be used for mimicking a request for a certain project ID",
+              "format": "int64",
+              "location": "query",
+              "type": "string"
+            },
+            "part": {
+              "description": "The part parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include.",
+              "location": "query",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "thirdPartyLinks",
+          "request": {
+            "$ref": "ThirdPartyLink"
+          },
+          "response": {
+            "$ref": "ThirdPartyLink"
+          }
+        },
+        "update": {
+          "description": "Modifies a third-party account link. For example, you could change a third-party account link's type.",
+          "httpMethod": "PUT",
+          "id": "youtube.thirdPartyLink.update",
+          "parameterOrder": [
+            "part"
+          ],
+          "parameters": {
+            "part": {
+              "description": "The part parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include.\n\nNote that this method will override the existing values for mutable properties that are contained in any parts that the request body specifies. For example, a third-party account link's type is contained in the snippet part, which must be included in the request body. If the request does not specify a value for the snippet.type property, the third-party account link's existing type will be deleted.",
+              "location": "query",
+              "required": true,
+              "type": "string"
+            }
+          },
+          "path": "thirdPartyLinks",
+          "request": {
+            "$ref": "ThirdPartyLink"
+          },
+          "response": {
+            "$ref": "ThirdPartyLink"
+          }
+        }
+      }
+    },
+    "thirdPartyLinks": {
+      "methods": {
+        "list": {
+          "description": "Returns a collection of third-party account links that match the API request parameters. For example, you can retrieve all links that the authenticated user owns, or you can retrieve one or more links by their unique IDs.",
+          "httpMethod": "GET",
+          "id": "youtube.thirdPartyLinks.list",
+          "parameterOrder": [
+            "part"
+          ],
+          "parameters": {
+            "linkingToken": {
+              "description": "The linkingToken parameter specifies a unique linking token for the resource that is being retrieved. In a thirdPartyLink resource, the linking_token property specifies the link's unique identifying token.",
+              "location": "query",
+              "type": "string"
+            },
+            "part": {
+              "description": "The part parameter specifies a comma-separated list of one or more third-party account link resource properties that the API response will include.\n\nIf the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a thirdPartyLink resource, the snippet property contains properties like type, and link_content. As such, if you set part=snippet, the API response will contain all of those properties.",
+              "location": "query",
+              "required": true,
+              "type": "string"
+            },
+            "type": {
+              "description": "The type parameter specifies the third-party account link type for which all matching resources should be retrieved.",
+              "enum": [
+                "channelToStoreLink"
+              ],
+              "enumDescriptions": [
+                "Link from a YouTube channel to a merchandise store."
+              ],
+              "location": "query",
+              "type": "string"
+            }
+          },
+          "path": "thirdPartyLinks",
+          "response": {
+            "$ref": "ThirdPartyLinkListResponse"
+          }
         }
       }
     },
@@ -3586,7 +3696,7 @@
       }
     }
   },
-  "revision": "20190827",
+  "revision": "20200520",
   "rootUrl": "https://www.googleapis.com/",
   "schemas": {
     "AccessPolicy": {
@@ -3970,11 +4080,6 @@
           "type": "string"
         },
         "description": {
-          "annotations": {
-            "required": [
-              "youtube.activities.insert"
-            ]
-          },
           "description": "The description of the resource primarily associated with the activity.",
           "type": "string"
         },
@@ -3983,7 +4088,7 @@
           "type": "string"
         },
         "publishedAt": {
-          "description": "The date and time that the video was uploaded. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the video was uploaded. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -4151,7 +4256,7 @@
           "type": "string"
         },
         "lastUpdated": {
-          "description": "The date and time when the caption track was last updated. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the caption track was last updated. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -4459,7 +4564,7 @@
           "type": "string"
         },
         "timeLinked": {
-          "description": "The date and time of when the channel was linked to the content owner. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time of when the channel was linked to the content owner. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         }
@@ -4889,7 +4994,7 @@
           "description": "Localized title and description, read-only."
         },
         "publishedAt": {
-          "description": "The date and time that the channel was created. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the channel was created. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -4959,6 +5064,9 @@
           ],
           "type": "string"
         },
+        "madeForKids": {
+          "type": "boolean"
+        },
         "privacyStatus": {
           "description": "Privacy status of the channel.",
           "enum": [
@@ -4971,6 +5079,24 @@
             "",
             ""
           ],
+          "type": "string"
+        },
+        "selfDeclaredMadeForKids": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ChannelToStoreLinkDetails": {
+      "description": "Information specific to a store on a merchandising platform linked to a YouTube channel.",
+      "id": "ChannelToStoreLinkDetails",
+      "properties": {
+        "storeName": {
+          "description": "Name of the store.",
+          "type": "string"
+        },
+        "storeUrl": {
+          "description": "Landing page of the store.",
           "type": "string"
         }
       },
@@ -5115,7 +5241,7 @@
           "type": "string"
         },
         "publishedAt": {
-          "description": "The date and time when the comment was orignally published. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the comment was orignally published. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -5128,7 +5254,7 @@
           "type": "string"
         },
         "updatedAt": {
-          "description": "The date and time when was last updated . The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when was last updated . The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -7211,6 +7337,14 @@
           "description": "The primary ingestion URL that you should use to stream video to YouTube. You must stream video to this URL.\n\nDepending on which application or tool you use to encode your video stream, you may need to enter the stream URL and stream name separately or you may need to concatenate them in the following format:\n\nSTREAM_URL/STREAM_NAME",
           "type": "string"
         },
+        "rtmpsBackupIngestionAddress": {
+          "description": "This ingestion url may be used instead of backupIngestionAddress in order to stream via RTMPS. Not applicable to non-RTMP streams.",
+          "type": "string"
+        },
+        "rtmpsIngestionAddress": {
+          "description": "This ingestion url may be used instead of ingestionAddress in order to stream via RTMPS. Not applicable to non-RTMP streams.",
+          "type": "string"
+        },
         "streamName": {
           "description": "The HTTP or RTMP stream name that YouTube assigns to the video stream.",
           "type": "string"
@@ -7417,6 +7551,9 @@
           "description": "This setting indicates whether auto start is enabled for this broadcast.",
           "type": "boolean"
         },
+        "enableAutoStop": {
+          "type": "boolean"
+        },
         "enableClosedCaptions": {
           "description": "This setting indicates whether HTTP POST closed captioning is enabled for this broadcast. The ingestion URL of the closed captions is returned through the liveStreams API. This is mutually exclusive with using the closed_captions_type property, and is equivalent to setting closed_captions_type to CLOSED_CAPTIONS_HTTP_POST.",
           "type": "boolean"
@@ -7467,6 +7604,7 @@
           "type": "string"
         },
         "mesh": {
+          "description": "The mesh for projecting the video if projection is mesh. The mesh value must be a UTF-8 string containing the base-64 encoding of 3D mesh data that follows the  Spherical Video V2 RFC specification for an mshp box, excluding the box size and type but including the following four reserved zero bytes for the version and flags.",
           "format": "byte",
           "type": "string"
         },
@@ -7570,12 +7708,12 @@
       "id": "LiveBroadcastSnippet",
       "properties": {
         "actualEndTime": {
-          "description": "The date and time that the broadcast actually ended. This information is only available once the broadcast's state is complete. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the broadcast actually ended. This information is only available once the broadcast's state is complete. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
         "actualStartTime": {
-          "description": "The date and time that the broadcast actually started. This information is only available once the broadcast's state is live. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the broadcast actually started. This information is only available once the broadcast's state is live. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -7622,12 +7760,12 @@
           "type": "string"
         },
         "publishedAt": {
-          "description": "The date and time that the broadcast was added to YouTube's live broadcast schedule. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the broadcast was added to YouTube's live broadcast schedule. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
         "scheduledEndTime": {
-          "description": "The date and time that the broadcast is scheduled to end. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the broadcast is scheduled to end. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -7638,7 +7776,7 @@
               "youtube.liveBroadcasts.update"
             ]
           },
-          "description": "The date and time that the broadcast is scheduled to start. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the broadcast is scheduled to start. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -7717,6 +7855,9 @@
           ],
           "type": "string"
         },
+        "madeForKids": {
+          "type": "boolean"
+        },
         "privacyStatus": {
           "annotations": {
             "required": [
@@ -7750,6 +7891,9 @@
             ""
           ],
           "type": "string"
+        },
+        "selfDeclaredMadeForKids": {
+          "type": "boolean"
         }
       },
       "type": "object"
@@ -7993,20 +8137,8 @@
         "messageRetractedDetails": {
           "$ref": "LiveChatMessageRetractedDetails"
         },
-        "pollClosedDetails": {
-          "$ref": "LiveChatPollClosedDetails"
-        },
-        "pollEditedDetails": {
-          "$ref": "LiveChatPollEditedDetails"
-        },
-        "pollOpenedDetails": {
-          "$ref": "LiveChatPollOpenedDetails"
-        },
-        "pollVotedDetails": {
-          "$ref": "LiveChatPollVotedDetails"
-        },
         "publishedAt": {
-          "description": "The date and time when the message was orignally published. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the message was orignally published. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -8030,10 +8162,6 @@
             "messageDeletedEvent",
             "messageRetractedEvent",
             "newSponsorEvent",
-            "pollClosedEvent",
-            "pollEditedEvent",
-            "pollOpenedEvent",
-            "pollVotedEvent",
             "sponsorOnlyModeEndedEvent",
             "sponsorOnlyModeStartedEvent",
             "superChatEvent",
@@ -8043,10 +8171,6 @@
             "userBannedEvent"
           ],
           "enumDescriptions": [
-            "",
-            "",
-            "",
-            "",
             "",
             "",
             "",
@@ -8146,79 +8270,6 @@
         "moderatorDetails": {
           "$ref": "ChannelProfileDetails",
           "description": "Details about the moderator."
-        }
-      },
-      "type": "object"
-    },
-    "LiveChatPollClosedDetails": {
-      "id": "LiveChatPollClosedDetails",
-      "properties": {
-        "pollId": {
-          "description": "The id of the poll that was closed.",
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "LiveChatPollEditedDetails": {
-      "id": "LiveChatPollEditedDetails",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "items": {
-          "items": {
-            "$ref": "LiveChatPollItem"
-          },
-          "type": "array"
-        },
-        "prompt": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "LiveChatPollItem": {
-      "id": "LiveChatPollItem",
-      "properties": {
-        "description": {
-          "description": "Plain text description of the item.",
-          "type": "string"
-        },
-        "itemId": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "LiveChatPollOpenedDetails": {
-      "id": "LiveChatPollOpenedDetails",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "items": {
-          "items": {
-            "$ref": "LiveChatPollItem"
-          },
-          "type": "array"
-        },
-        "prompt": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "LiveChatPollVotedDetails": {
-      "id": "LiveChatPollVotedDetails",
-      "properties": {
-        "itemId": {
-          "description": "The poll item the user chose.",
-          "type": "string"
-        },
-        "pollId": {
-          "description": "The poll the user voted on.",
-          "type": "string"
         }
       },
       "type": "object"
@@ -8571,7 +8622,7 @@
           "type": "boolean"
         },
         "publishedAt": {
-          "description": "The date and time that the stream was created. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the stream was created. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -8655,10 +8706,6 @@
           "description": "Etag of this resource.",
           "type": "string"
         },
-        "id": {
-          "description": "The ID that YouTube assigns to uniquely identify the member.",
-          "type": "string"
-        },
         "kind": {
           "default": "youtube#member",
           "description": "Identifies what kind of resource this is. Value: the fixed string \"youtube#member\".",
@@ -8733,33 +8780,64 @@
       "id": "MembershipsDetails",
       "properties": {
         "accessibleLevels": {
-          "description": "All levels that the user has access to. This includes the purchased level and all other levels that are included because of a higher purchase.",
+          "description": "Ids of all levels that the user has access to. This includes the currently active level and all other levels that are included because of a higher purchase.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
+        "highestAccessibleLevel": {
+          "description": "Id of the highest level that the user has access to at the moment.",
+          "type": "string"
+        },
+        "highestAccessibleLevelDisplayName": {
+          "description": "Display name of the highest level that the user has access to at the moment.",
+          "type": "string"
+        },
+        "membershipsDuration": {
+          "$ref": "MembershipsDuration",
+          "description": "Data about memberships duration without taking into consideration pricing levels."
+        },
+        "membershipsDurationAtLevels": {
+          "description": "Data about memberships duration on particular pricing levels.",
+          "items": {
+            "$ref": "MembershipsDurationAtLevel"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "MembershipsDuration": {
+      "id": "MembershipsDuration",
+      "properties": {
         "memberSince": {
           "description": "The date and time when the user became a continuous member across all levels.",
           "type": "string"
         },
-        "memberSinceCurrentLevel": {
-          "description": "The date and time when the user started to continuously have access to the currently highest level.",
-          "type": "string"
-        },
-        "memberTotalDuration": {
+        "memberTotalDurationMonths": {
           "description": "The cumulative time the user has been a member across all levels in complete months (the time is rounded down to the nearest integer).",
           "format": "int32",
           "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "MembershipsDurationAtLevel": {
+      "id": "MembershipsDurationAtLevel",
+      "properties": {
+        "level": {
+          "description": "Pricing level id.",
+          "type": "string"
         },
-        "memberTotalDurationCurrentLevel": {
-          "description": "The cumulative time the user has had access to the currently highest level in complete months (the time is rounded down to the nearest integer).",
+        "memberSince": {
+          "description": "The date and time when the user became a continuous member for the given level.",
+          "type": "string"
+        },
+        "memberTotalDurationMonths": {
+          "description": "The cumulative time the user has been a member for the given level in complete months (the time is rounded down to the nearest integer).",
           "format": "int32",
           "type": "integer"
-        },
-        "purchasedLevel": {
-          "description": "The highest level the user has access to at the moment.",
-          "type": "string"
         }
       },
       "type": "object"
@@ -9009,7 +9087,7 @@
           "type": "string"
         },
         "videoPublishedAt": {
-          "description": "The date and time that the video was published to YouTube. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the video was published to YouTube. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         }
@@ -9092,7 +9170,7 @@
           "type": "integer"
         },
         "publishedAt": {
-          "description": "The date and time that the item was added to the playlist. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the item was added to the playlist. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -9232,7 +9310,7 @@
           "description": "Localized title and description, read-only."
         },
         "publishedAt": {
-          "description": "The date and time that the playlist was created. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the playlist was created. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -9476,7 +9554,7 @@
           "type": "string"
         },
         "publishedAt": {
-          "description": "The creation date and time of the resource that the search result identifies. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The creation date and time of the resource that the search result identifies. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -9568,7 +9646,7 @@
           "description": "Details about the sponsor."
         },
         "sponsorSince": {
-          "description": "The date and time when the user became a sponsor. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the user became a sponsor. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         }
@@ -9697,7 +9775,7 @@
           "type": "string"
         },
         "publishedAt": {
-          "description": "The date and time that the subscription was created. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the subscription was created. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -9825,7 +9903,7 @@
           "type": "string"
         },
         "createdAt": {
-          "description": "The date and time when the event occurred. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the event occurred. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -9878,6 +9956,109 @@
         },
         "stickerId": {
           "description": "Unique identifier of the Super Sticker. This is a shorter form of the alt_text that includes pack name and a recognizable characteristic of the sticker.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ThirdPartyLink": {
+      "description": "A third party account link resource represents a link between a YouTube account or a channel and an account on a third-party service.",
+      "id": "ThirdPartyLink",
+      "properties": {
+        "etag": {
+          "description": "Etag of this resource.",
+          "type": "string"
+        },
+        "kind": {
+          "default": "youtube#thirdPartyLink",
+          "description": "Identifies what kind of resource this is. Value: the fixed string \"youtube#thirdPartyLink\".",
+          "type": "string"
+        },
+        "linkingToken": {
+          "description": "The linking_token object identifies a YouTube account and channel with which the third-party account is linked.",
+          "type": "string"
+        },
+        "snippet": {
+          "$ref": "ThirdPartyLinkSnippet",
+          "description": "The snippet object contains basic details about the third-party link."
+        },
+        "status": {
+          "$ref": "ThirdPartyLinkStatus",
+          "description": "The status object contains information about the status of the link."
+        }
+      },
+      "type": "object"
+    },
+    "ThirdPartyLinkListResponse": {
+      "id": "ThirdPartyLinkListResponse",
+      "properties": {
+        "etag": {
+          "description": "Etag of this resource.",
+          "type": "string"
+        },
+        "eventId": {
+          "description": "Serialized EventId of the request which produced this response.",
+          "type": "string"
+        },
+        "kind": {
+          "default": "youtube#thirdPartyLinkListResponse",
+          "description": "Identifies what kind of resource this is. Value: the fixed string \"youtube#thirdPartyLinkListResponse\".",
+          "type": "string"
+        },
+        "links": {
+          "description": "A link between an account on a third-party service and a YouTube account or channel relevant for the calling thid party.",
+          "items": {
+            "$ref": "ThirdPartyLink"
+          },
+          "type": "array"
+        },
+        "visitorId": {
+          "description": "The visitorId identifies the visitor.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ThirdPartyLinkSnippet": {
+      "description": "Basic information about a third-party account link, including its type and type-specific information.",
+      "id": "ThirdPartyLinkSnippet",
+      "properties": {
+        "channelToStoreLink": {
+          "$ref": "ChannelToStoreLinkDetails",
+          "description": "Information specific to a link between a channel and a store on a merchandising platform."
+        },
+        "type": {
+          "description": "Type of the link named after the entities that are being linked.",
+          "enum": [
+            "channelToStoreLink",
+            "unknownLink"
+          ],
+          "enumDescriptions": [
+            "",
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ThirdPartyLinkStatus": {
+      "description": "The third-party link status object contains information about the status of the link.",
+      "id": "ThirdPartyLinkStatus",
+      "properties": {
+        "linkStatus": {
+          "enum": [
+            "failed",
+            "linked",
+            "pending",
+            "unknown"
+          ],
+          "enumDescriptions": [
+            "",
+            "",
+            "",
+            ""
+          ],
           "type": "string"
         }
       },
@@ -10612,12 +10793,12 @@
           "type": "string"
         },
         "actualEndTime": {
-          "description": "The time that the broadcast actually ended. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format. This value will not be available until the broadcast is over.",
+          "description": "The time that the broadcast actually ended. The value is specified in ISO 8601 format. This value will not be available until the broadcast is over.",
           "format": "date-time",
           "type": "string"
         },
         "actualStartTime": {
-          "description": "The time that the broadcast actually started. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format. This value will not be available until the broadcast begins.",
+          "description": "The time that the broadcast actually started. The value is specified in ISO 8601 format. This value will not be available until the broadcast begins.",
           "format": "date-time",
           "type": "string"
         },
@@ -10627,12 +10808,12 @@
           "type": "string"
         },
         "scheduledEndTime": {
-          "description": "The time that the broadcast is scheduled to end. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format. If the value is empty or the property is not present, then the broadcast is scheduled to continue indefinitely.",
+          "description": "The time that the broadcast is scheduled to end. The value is specified in ISO 8601 format. If the value is empty or the property is not present, then the broadcast is scheduled to continue indefinitely.",
           "format": "date-time",
           "type": "string"
         },
         "scheduledStartTime": {
-          "description": "The time that the broadcast is scheduled to begin. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The time that the broadcast is scheduled to begin. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         }
@@ -10875,7 +11056,7 @@
           "description": "Localized snippet selected with the hl parameter. If no such localization exists, this field is populated with the default snippet. (Read-only)"
         },
         "publishedAt": {
-          "description": "The date and time that the video was uploaded. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time that the video was uploaded. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -10969,6 +11150,9 @@
           ],
           "type": "string"
         },
+        "madeForKids": {
+          "type": "boolean"
+        },
         "privacyStatus": {
           "description": "The video's privacy status.",
           "enum": [
@@ -10988,7 +11172,7 @@
           "type": "boolean"
         },
         "publishAt": {
-          "description": "The date and time when the video is scheduled to publish. It can be set only if the privacy status of the video is private. The value is specified in ISO 8601 (YYYY-MM-DDThh:mm:ss.sZ) format.",
+          "description": "The date and time when the video is scheduled to publish. It can be set only if the privacy status of the video is private. The value is specified in ISO 8601 format.",
           "format": "date-time",
           "type": "string"
         },
@@ -11019,6 +11203,9 @@
             ""
           ],
           "type": "string"
+        },
+        "selfDeclaredMadeForKids": {
+          "type": "boolean"
         },
         "uploadStatus": {
           "description": "The status of the uploaded video.",

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -54,6 +54,7 @@ import (
 	googleapi "google.golang.org/api/googleapi"
 	gensupport "google.golang.org/api/internal/gensupport"
 	option "google.golang.org/api/option"
+	internaloption "google.golang.org/api/option/internaloption"
 	htransport "google.golang.org/api/transport/http"
 )
 
@@ -70,6 +71,7 @@ var _ = googleapi.Version
 var _ = errors.New
 var _ = strings.Replace
 var _ = context.Canceled
+var _ = internaloption.WithDefaultEndpoint
 
 const apiId = "speech:v1p1beta1"
 const apiName = "speech"
@@ -89,6 +91,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, err
 	)
 	// NOTE: prepend, so we don't override user-specified scopes.
 	opts = append([]option.ClientOption{scopesOption}, opts...)
+	opts = append(opts, internaloption.WithDefaultEndpoint(basePath))
 	client, endpoint, err := htransport.NewClient(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -189,6 +192,75 @@ type SpeechService struct {
 	s *Service
 }
 
+// ClassItem: An item of the class.
+type ClassItem struct {
+	// Value: The class item's value.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Value") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Value") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ClassItem) MarshalJSON() ([]byte, error) {
+	type NoMethod ClassItem
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// CustomClass: A set of words or phrases that represents a common
+// concept likely to appear
+// in your audio, for example a list of passenger ship names.
+// CustomClass items
+// can be substituted into placeholders that you set in PhraseSet
+// phrases.
+type CustomClass struct {
+	// CustomClassId: If this custom class is a resource, the
+	// custom_class_id is the resource id
+	// of the CustomClass. Case sensitive.
+	CustomClassId string `json:"customClassId,omitempty"`
+
+	// Items: A collection of class items.
+	Items []*ClassItem `json:"items,omitempty"`
+
+	// Name: The resource name of the custom class.
+	Name string `json:"name,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CustomClassId") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CustomClassId") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *CustomClass) MarshalJSON() ([]byte, error) {
+	type NoMethod CustomClass
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // ListOperationsResponse: The response message for
 // Operations.ListOperations.
 type ListOperationsResponse struct {
@@ -243,6 +315,11 @@ type LongRunningRecognizeMetadata struct {
 	// StartTime: Time when the request was received.
 	StartTime string `json:"startTime,omitempty"`
 
+	// Uri: Output only. The URI of the audio file being transcribed. Empty
+	// if the audio was sent
+	// as byte content.
+	Uri string `json:"uri,omitempty"`
+
 	// ForceSendFields is a list of field names (e.g. "LastUpdateTime") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
@@ -271,10 +348,10 @@ func (s *LongRunningRecognizeMetadata) MarshalJSON() ([]byte, error) {
 // for the `LongRunningRecognize`
 // method.
 type LongRunningRecognizeRequest struct {
-	// Audio: *Required* The audio data to be recognized.
+	// Audio: Required. The audio data to be recognized.
 	Audio *RecognitionAudio `json:"audio,omitempty"`
 
-	// Config: *Required* Provides information to the recognizer that
+	// Config: Required. Provides information to the recognizer that
 	// specifies how to
 	// process the request.
 	Config *RecognitionConfig `json:"config,omitempty"`
@@ -312,8 +389,8 @@ func (s *LongRunningRecognizeRequest) MarshalJSON() ([]byte, error) {
 // `google::longrunning::Operations`
 // service.
 type LongRunningRecognizeResponse struct {
-	// Results: Output only. Sequential list of transcription results
-	// corresponding to
+	// Results: Sequential list of transcription results corresponding
+	// to
 	// sequential portions of audio.
 	Results []*SpeechRecognitionResult `json:"results,omitempty"`
 
@@ -416,6 +493,169 @@ func (s *Operation) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// Phrase: A phrases containing words and phrase "hints" so that
+// the speech recognition is more likely to recognize them. This can be
+// used
+// to improve the accuracy for specific words and phrases, for example,
+// if
+// specific commands are typically spoken by the user. This can also be
+// used
+// to add additional words to the vocabulary of the recognizer.
+// See
+// [usage
+// limits](https://cloud.google.com/speech-to-text/quotas#content).
+//
+// List
+//  items can also include pre-built or custom classes containing
+// groups
+// of words that represent common concepts that occur in natural
+// language. For
+// example, rather than providing a phrase hint for every month of
+// the
+// year (e.g. "i was born in january", "i was born in febuary", ...),
+// use the
+// pre-built `$MONTH` class improves the likelihood of correctly
+// transcribing
+// audio that includes months (e.g. "i was born in $month").
+// To refer to pre-built classes, use the class' symbol prepended with
+// `$`
+// e.g. `$MONTH`. To refer to custom classes that were defined inline in
+// the
+// request, set the class's `custom_class_id` to a string unique to all
+// class
+// resources and inline classes. Then use the class' id wrapped in
+// $`{...}`
+// e.g. "${my-months}". To refer to custom classes resources, use the
+// class'
+// id wrapped in `${}` (e.g. `${my-months}`).
+type Phrase struct {
+	// Boost: Hint Boost. Overrides the boost set at the phrase set
+	// level.
+	// Positive value will increase the probability that a specific phrase
+	// will
+	// be recognized over other similar sounding phrases. The higher the
+	// boost,
+	// the higher the chance of false positive recognition as well.
+	// Negative
+	// boost values would correspond to anti-biasing. Anti-biasing is
+	// not
+	// enabled, so negative boost will simply be ignored. Though `boost`
+	// can
+	// accept a wide range of positive values, most use cases are best
+	// served
+	// with values between 0 and 20. We recommend using a binary search
+	// approach
+	// to finding the optimal value for your use case. Speech
+	// recognition
+	// will skip PhraseSets with a boost value of 0.
+	Boost float64 `json:"boost,omitempty"`
+
+	// Value: The phrase itself.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Boost") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Boost") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *Phrase) MarshalJSON() ([]byte, error) {
+	type NoMethod Phrase
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *Phrase) UnmarshalJSON(data []byte) error {
+	type NoMethod Phrase
+	var s1 struct {
+		Boost gensupport.JSONFloat64 `json:"boost"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.Boost = float64(s1.Boost)
+	return nil
+}
+
+// PhraseSet: Provides "hints" to the speech recognizer to favor
+// specific words and phrases
+// in the results.
+type PhraseSet struct {
+	// Boost: Hint Boost. Positive value will increase the probability that
+	// a specific
+	// phrase will be recognized over other similar sounding phrases. The
+	// higher
+	// the boost, the higher the chance of false positive recognition as
+	// well.
+	// Negative boost values would correspond to anti-biasing. Anti-biasing
+	// is not
+	// enabled, so negative boost will simply be ignored. Though `boost`
+	// can
+	// accept a wide range of positive values, most use cases are best
+	// served with
+	// values between 0 (exclusive) and 20. We recommend using a binary
+	// search
+	// approach to finding the optimal value for your use case. Speech
+	// recognition
+	// will skip PhraseSets with a boost value of 0.
+	Boost float64 `json:"boost,omitempty"`
+
+	// Name: The resource name of the phrase set.
+	Name string `json:"name,omitempty"`
+
+	// Phrases: A list of word and phrases.
+	Phrases []*Phrase `json:"phrases,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Boost") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Boost") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *PhraseSet) MarshalJSON() ([]byte, error) {
+	type NoMethod PhraseSet
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+func (s *PhraseSet) UnmarshalJSON(data []byte) error {
+	type NoMethod PhraseSet
+	var s1 struct {
+		Boost gensupport.JSONFloat64 `json:"boost"`
+		*NoMethod
+	}
+	s1.NoMethod = (*NoMethod)(s)
+	if err := json.Unmarshal(data, &s1); err != nil {
+		return err
+	}
+	s.Boost = float64(s1.Boost)
+	return nil
+}
+
 // RecognitionAudio: Contains audio data in the encoding specified in
 // the `RecognitionConfig`.
 // Either `content` or `uri` must be supplied. Supplying both or
@@ -471,7 +711,18 @@ func (s *RecognitionAudio) MarshalJSON() ([]byte, error) {
 // specifies how to process the
 // request.
 type RecognitionConfig struct {
-	// AlternativeLanguageCodes: *Optional* A list of up to 3
+	// Adaptation: Speech adaptation configuration improves the accuracy of
+	// speech
+	// recognition. When speech adaptation is set it supersedes
+	// the
+	// `speech_contexts` field. For more information, see the
+	// [speech
+	// adaptation](https://cloud.google.com/speech-to-text/docs/conte
+	// xt-strength)
+	// documentation.
+	Adaptation *SpeechAdaptation `json:"adaptation,omitempty"`
+
+	// AlternativeLanguageCodes: A list of up to 3
 	// additional
 	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
 	// tags,
@@ -495,8 +746,8 @@ type RecognitionConfig struct {
 	// transcription).
 	AlternativeLanguageCodes []string `json:"alternativeLanguageCodes,omitempty"`
 
-	// AudioChannelCount: *Optional* The number of channels in the input
-	// audio data.
+	// AudioChannelCount: The number of channels in the input audio
+	// data.
 	// ONLY set this for MULTI-CHANNEL recognition.
 	// Valid values for LINEAR16 and FLAC are `1`-`8`.
 	// Valid values for OGG_OPUS are '1'-'254'.
@@ -509,8 +760,8 @@ type RecognitionConfig struct {
 	// `enable_separate_recognition_per_channel` to 'true'.
 	AudioChannelCount int64 `json:"audioChannelCount,omitempty"`
 
-	// DiarizationConfig: *Optional* Config to enable speaker diarization
-	// and set additional
+	// DiarizationConfig: Config to enable speaker diarization and set
+	// additional
 	// parameters to make diarization better suited for your
 	// application.
 	// Note: When this is enabled, we send all the words from the beginning
@@ -525,26 +776,20 @@ type RecognitionConfig struct {
 	// in the top alternative of the FINAL SpeechRecognitionResult.
 	DiarizationConfig *SpeakerDiarizationConfig `json:"diarizationConfig,omitempty"`
 
-	// DiarizationSpeakerCount: *Optional*
-	// If set, specifies the estimated number of speakers in the
-	// conversation.
+	// DiarizationSpeakerCount: If set, specifies the estimated number of
+	// speakers in the conversation.
 	// Defaults to '2'. Ignored unless enable_speaker_diarization is set to
 	// true.
 	// Note: Use diarization_config instead.
 	DiarizationSpeakerCount int64 `json:"diarizationSpeakerCount,omitempty"`
 
-	// EnableAutomaticPunctuation: *Optional* If 'true', adds punctuation to
+	// EnableAutomaticPunctuation: If 'true', adds punctuation to
 	// recognition result hypotheses.
 	// This feature is only available in select languages. Setting this
 	// for
 	// requests in other languages has no effect at all.
 	// The default 'false' value does not add punctuation to result
 	// hypotheses.
-	// Note: This is currently offered as an experimental service,
-	// complimentary
-	// to all users. In the future this may be exclusively available as
-	// a
-	// premium feature.
 	EnableAutomaticPunctuation bool `json:"enableAutomaticPunctuation,omitempty"`
 
 	// EnableSeparateRecognitionPerChannel: This needs to be set to `true`
@@ -560,23 +805,23 @@ type RecognitionConfig struct {
 	// `audio_channel_count` multiplied by the length of the audio.
 	EnableSeparateRecognitionPerChannel bool `json:"enableSeparateRecognitionPerChannel,omitempty"`
 
-	// EnableSpeakerDiarization: *Optional* If 'true', enables speaker
-	// detection for each recognized word in
+	// EnableSpeakerDiarization: If 'true', enables speaker detection for
+	// each recognized word in
 	// the top alternative of the recognition result using a speaker_tag
 	// provided
 	// in the WordInfo.
 	// Note: Use diarization_config instead.
 	EnableSpeakerDiarization bool `json:"enableSpeakerDiarization,omitempty"`
 
-	// EnableWordConfidence: *Optional* If `true`, the top result includes a
-	// list of words and the
+	// EnableWordConfidence: If `true`, the top result includes a list of
+	// words and the
 	// confidence for those words. If `false`, no word-level
 	// confidence
 	// information is returned. The default is `false`.
 	EnableWordConfidence bool `json:"enableWordConfidence,omitempty"`
 
-	// EnableWordTimeOffsets: *Optional* If `true`, the top result includes
-	// a list of words and
+	// EnableWordTimeOffsets: If `true`, the top result includes a list of
+	// words and
 	// the start and end time offsets (timestamps) for those words.
 	// If
 	// `false`, no word-level time offset information is returned. The
@@ -637,12 +882,12 @@ type RecognitionConfig struct {
 	// wideband is supported. `sample_rate_hertz` must be 16000.
 	//   "MP3" - MP3 audio. Support all standard MP3 bitrates (which range
 	// from 32-320
-	// kbps). When using this encoding, `sample_rate_hertz` can be
-	// optionally
-	// unset if not known.
+	// kbps). When using this encoding, `sample_rate_hertz` has to match
+	// the
+	// sample rate of the file being used.
 	Encoding string `json:"encoding,omitempty"`
 
-	// LanguageCode: *Required* The language of the supplied audio as
+	// LanguageCode: Required. The language of the supplied audio as
 	// a
 	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
 	// tag.
@@ -654,8 +899,8 @@ type RecognitionConfig struct {
 	// of the currently supported language codes.
 	LanguageCode string `json:"languageCode,omitempty"`
 
-	// MaxAlternatives: *Optional* Maximum number of recognition hypotheses
-	// to be returned.
+	// MaxAlternatives: Maximum number of recognition hypotheses to be
+	// returned.
 	// Specifically, the maximum number of `SpeechRecognitionAlternative`
 	// messages
 	// within each `SpeechRecognitionResult`.
@@ -665,11 +910,11 @@ type RecognitionConfig struct {
 	// one. If omitted, will return a maximum of one.
 	MaxAlternatives int64 `json:"maxAlternatives,omitempty"`
 
-	// Metadata: *Optional* Metadata regarding this request.
+	// Metadata: Metadata regarding this request.
 	Metadata *RecognitionMetadata `json:"metadata,omitempty"`
 
-	// Model: *Optional* Which model to select for the given request. Select
-	// the model
+	// Model: Which model to select for the given request. Select the
+	// model
 	// best suited to your domain to get best results. If a model is
 	// not
 	// explicitly specified, then we auto-select a model based on the
@@ -710,8 +955,8 @@ type RecognitionConfig struct {
 	// </table>
 	Model string `json:"model,omitempty"`
 
-	// ProfanityFilter: *Optional* If set to `true`, the server will attempt
-	// to filter out
+	// ProfanityFilter: If set to `true`, the server will attempt to filter
+	// out
 	// profanities, replacing all but the initial character in each filtered
 	// word
 	// with asterisks, e.g. "f***". If set to `false` or omitted,
@@ -731,7 +976,7 @@ type RecognitionConfig struct {
 	// required for all other audio formats. For details, see AudioEncoding.
 	SampleRateHertz int64 `json:"sampleRateHertz,omitempty"`
 
-	// SpeechContexts: *Optional* array of SpeechContext.
+	// SpeechContexts: Array of SpeechContext.
 	// A means to provide context to assist the speech recognition. For
 	// more
 	// information,
@@ -741,8 +986,8 @@ type RecognitionConfig struct {
 	// ontext-strength).
 	SpeechContexts []*SpeechContext `json:"speechContexts,omitempty"`
 
-	// UseEnhanced: *Optional* Set to true to use an enhanced model for
-	// speech recognition.
+	// UseEnhanced: Set to true to use an enhanced model for speech
+	// recognition.
 	// If `use_enhanced` is set to true and the `model` field is not set,
 	// then
 	// an appropriate enhanced model is chosen if an enhanced model exists
@@ -756,22 +1001,20 @@ type RecognitionConfig struct {
 	// of the specified model.
 	UseEnhanced bool `json:"useEnhanced,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g.
-	// "AlternativeLanguageCodes") to unconditionally include in API
-	// requests. By default, fields with empty values are omitted from API
-	// requests. However, any non-pointer, non-interface field appearing in
-	// ForceSendFields will be sent to the server regardless of whether the
-	// field is empty or not. This may be used to include empty fields in
-	// Patch requests.
+	// ForceSendFields is a list of field names (e.g. "Adaptation") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "AlternativeLanguageCodes")
-	// to include in API requests with the JSON null value. By default,
-	// fields with empty values are omitted from API requests. However, any
-	// field with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Adaptation") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -908,16 +1151,13 @@ func (s *RecognitionMetadata) MarshalJSON() ([]byte, error) {
 // RecognizeRequest: The top-level message sent by the client for the
 // `Recognize` method.
 type RecognizeRequest struct {
-	// Audio: *Required* The audio data to be recognized.
+	// Audio: Required. The audio data to be recognized.
 	Audio *RecognitionAudio `json:"audio,omitempty"`
 
-	// Config: *Required* Provides information to the recognizer that
+	// Config: Required. Provides information to the recognizer that
 	// specifies how to
 	// process the request.
 	Config *RecognitionConfig `json:"config,omitempty"`
-
-	// Name: *Optional* The name of the model to use for recognition.
-	Name string `json:"name,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Audio") to
 	// unconditionally include in API requests. By default, fields with
@@ -948,8 +1188,8 @@ func (s *RecognizeRequest) MarshalJSON() ([]byte, error) {
 // `SpeechRecognitionResult`
 // messages.
 type RecognizeResponse struct {
-	// Results: Output only. Sequential list of transcription results
-	// corresponding to
+	// Results: Sequential list of transcription results corresponding
+	// to
 	// sequential portions of audio.
 	Results []*SpeechRecognitionResult `json:"results,omitempty"`
 
@@ -980,31 +1220,31 @@ func (s *RecognizeResponse) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// SpeakerDiarizationConfig: *Optional* Config to enable speaker
-// diarization.
+// SpeakerDiarizationConfig: Config to enable speaker diarization.
 type SpeakerDiarizationConfig struct {
-	// EnableSpeakerDiarization: *Optional* If 'true', enables speaker
-	// detection for each recognized word in
+	// EnableSpeakerDiarization: If 'true', enables speaker detection for
+	// each recognized word in
 	// the top alternative of the recognition result using a speaker_tag
 	// provided
 	// in the WordInfo.
 	EnableSpeakerDiarization bool `json:"enableSpeakerDiarization,omitempty"`
 
-	// MaxSpeakerCount: *Optional*
-	// Maximum number of speakers in the conversation. This range gives you
-	// more
+	// MaxSpeakerCount: Maximum number of speakers in the conversation. This
+	// range gives you more
 	// flexibility by allowing the system to automatically determine the
 	// correct
 	// number of speakers. If not set, the default value is 6.
 	MaxSpeakerCount int64 `json:"maxSpeakerCount,omitempty"`
 
-	// MinSpeakerCount: *Optional*
-	// Minimum number of speakers in the conversation. This range gives you
-	// more
+	// MinSpeakerCount: Minimum number of speakers in the conversation. This
+	// range gives you more
 	// flexibility by allowing the system to automatically determine the
 	// correct
 	// number of speakers. If not set, the default value is 2.
 	MinSpeakerCount int64 `json:"minSpeakerCount,omitempty"`
+
+	// SpeakerTag: Output only. Unused.
+	SpeakerTag int64 `json:"speakerTag,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g.
 	// "EnableSpeakerDiarization") to unconditionally include in API
@@ -1031,6 +1271,47 @@ func (s *SpeakerDiarizationConfig) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SpeechAdaptation: Speech adaptation configuration.
+type SpeechAdaptation struct {
+	// CustomClasses: A collection of custom classes. To specify the classes
+	// inline, leave the
+	// class' `name` blank and fill in the rest of its fields, giving it a
+	// unique
+	// `custom_class_id`. Refer to the inline defined class in phrase hints
+	// by its
+	// `custom_class_id`.
+	CustomClasses []*CustomClass `json:"customClasses,omitempty"`
+
+	// PhraseSets: A collection of phrase sets. To specify the hints inline,
+	// leave the
+	// phrase set's `name` blank and fill in the rest of its fields.
+	// Any
+	// phrase set can use any custom class.
+	PhraseSets []*PhraseSet `json:"phraseSets,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CustomClasses") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CustomClasses") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SpeechAdaptation) MarshalJSON() ([]byte, error) {
+	type NoMethod SpeechAdaptation
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // SpeechContext: Provides "hints" to the speech recognizer to favor
 // specific words and phrases
 // in the results.
@@ -1052,8 +1333,8 @@ type SpeechContext struct {
 	// finding the optimal value for your use case.
 	Boost float64 `json:"boost,omitempty"`
 
-	// Phrases: *Optional* A list of strings containing words and phrases
-	// "hints" so that
+	// Phrases: A list of strings containing words and phrases "hints" so
+	// that
 	// the speech recognition is more likely to recognize them. This can be
 	// used
 	// to improve the accuracy for specific words and phrases, for example,
@@ -1117,8 +1398,8 @@ func (s *SpeechContext) UnmarshalJSON(data []byte) error {
 // SpeechRecognitionAlternative: Alternative hypotheses (a.k.a. n-best
 // list).
 type SpeechRecognitionAlternative struct {
-	// Confidence: Output only. The confidence estimate between 0.0 and 1.0.
-	// A higher number
+	// Confidence: The confidence estimate between 0.0 and 1.0. A higher
+	// number
 	// indicates an estimated greater likelihood that the recognized words
 	// are
 	// correct. This field is set only for the top alternative of a
@@ -1131,12 +1412,12 @@ type SpeechRecognitionAlternative struct {
 	// not set.
 	Confidence float64 `json:"confidence,omitempty"`
 
-	// Transcript: Output only. Transcript text representing the words that
-	// the user spoke.
+	// Transcript: Transcript text representing the words that the user
+	// spoke.
 	Transcript string `json:"transcript,omitempty"`
 
-	// Words: Output only. A list of word-specific information for each
-	// recognized word.
+	// Words: A list of word-specific information for each recognized
+	// word.
 	// Note: When `enable_speaker_diarization` is true, you will see all the
 	// words
 	// from the beginning of the audio.
@@ -1182,8 +1463,8 @@ func (s *SpeechRecognitionAlternative) UnmarshalJSON(data []byte) error {
 // SpeechRecognitionResult: A speech recognition result corresponding to
 // a portion of the audio.
 type SpeechRecognitionResult struct {
-	// Alternatives: Output only. May contain one or more recognition
-	// hypotheses (up to the
+	// Alternatives: May contain one or more recognition hypotheses (up to
+	// the
 	// maximum specified in `max_alternatives`).
 	// These alternatives are ordered in terms of accuracy, with the top
 	// (first)
@@ -1197,13 +1478,12 @@ type SpeechRecognitionResult struct {
 	// 'N'.
 	ChannelTag int64 `json:"channelTag,omitempty"`
 
-	// LanguageCode: Output only.
-	// The
-	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language tag
-	// of the
-	// language in this result. This language code was detected to have the
-	// most
-	// likelihood of being spoken in the audio.
+	// LanguageCode: Output only. The
+	// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language
+	// tag
+	// of the language in this result. This language code was detected to
+	// have
+	// the most likelihood of being spoken in the audio.
 	LanguageCode string `json:"languageCode,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Alternatives") to
@@ -1283,8 +1563,8 @@ func (s *Status) MarshalJSON() ([]byte, error) {
 
 // WordInfo: Word-specific information for recognized words.
 type WordInfo struct {
-	// Confidence: Output only. The confidence estimate between 0.0 and 1.0.
-	// A higher number
+	// Confidence: The confidence estimate between 0.0 and 1.0. A higher
+	// number
 	// indicates an estimated greater likelihood that the recognized words
 	// are
 	// correct. This field is set only for the top alternative of a
@@ -1297,8 +1577,7 @@ type WordInfo struct {
 	// not set.
 	Confidence float64 `json:"confidence,omitempty"`
 
-	// EndTime: Output only. Time offset relative to the beginning of the
-	// audio,
+	// EndTime: Time offset relative to the beginning of the audio,
 	// and corresponding to the end of the spoken word.
 	// This field is only set if `enable_word_time_offsets=true` and only
 	// in the top hypothesis.
@@ -1318,8 +1597,7 @@ type WordInfo struct {
 	// top alternative.
 	SpeakerTag int64 `json:"speakerTag,omitempty"`
 
-	// StartTime: Output only. Time offset relative to the beginning of the
-	// audio,
+	// StartTime: Time offset relative to the beginning of the audio,
 	// and corresponding to the start of the spoken word.
 	// This field is only set if `enable_word_time_offsets=true` and only
 	// in the top hypothesis.
@@ -1328,7 +1606,7 @@ type WordInfo struct {
 	// vary.
 	StartTime string `json:"startTime,omitempty"`
 
-	// Word: Output only. The word corresponding to this set of information.
+	// Word: The word corresponding to this set of information.
 	Word string `json:"word,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Confidence") to
@@ -1427,7 +1705,7 @@ func (c *OperationsGetCall) Header() http.Header {
 
 func (c *OperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1500,7 +1778,7 @@ func (c *OperationsGetCall) Do(opts ...googleapi.CallOption) (*Operation, error)
 	//     "name": {
 	//       "description": "The name of the operation resource.",
 	//       "location": "path",
-	//       "pattern": "^.+$",
+	//       "pattern": "^.*$",
 	//       "required": true,
 	//       "type": "string"
 	//     }
@@ -1613,7 +1891,7 @@ func (c *OperationsListCall) Header() http.Header {
 
 func (c *OperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1791,7 +2069,7 @@ func (c *ProjectsLocationsOperationsGetCall) Header() http.Header {
 
 func (c *ProjectsLocationsOperationsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -1972,7 +2250,7 @@ func (c *ProjectsLocationsOperationsListCall) Header() http.Header {
 
 func (c *ProjectsLocationsOperationsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2151,7 +2429,7 @@ func (c *SpeechLongrunningrecognizeCall) Header() http.Header {
 
 func (c *SpeechLongrunningrecognizeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2278,7 +2556,7 @@ func (c *SpeechRecognizeCall) Header() http.Header {
 
 func (c *SpeechRecognizeCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190905")
+	reqHeaders.Set("x-goog-api-client", "gl-go/"+gensupport.GoVersion()+" gdcl/20200518")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
